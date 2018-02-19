@@ -7,7 +7,7 @@ phases:
       - echo "Installing jq..."
       - curl -qL -o jq https://stedolan.github.io/jq/download/linux64/jq && chmod +x ./jq
       - echo "Get the latest version of HashiCorp Packer..."
-      - packer_url=$(curl https://releases.hashicorp.com/index.json | jq '{packer}'
+      - export packer_url=$(curl https://releases.hashicorp.com/index.json | jq '{packer}'
      #| egrep "linux.*amd64" | sort --version-sort -r | head -1 | awk -F[\"] '{print $4}')
       - echo ${packer_url}
       - curl -o packer.zip $packer_url && unzip packer.zip
