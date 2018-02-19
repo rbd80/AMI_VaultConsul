@@ -23,8 +23,8 @@ phases:
       - aws configure set aws_access_key_id `./jq -r '.AccessKeyId' aws_credentials.json`
       - aws configure set aws_secret_access_key `./jq -r '.SecretAccessKey' aws_credentials.json`
       - aws configure set aws_session_token `./jq -r '.Token' aws_credentials.json`
-      - echo "Building HashiCorp Packer template, amazon-linux_packer-template.json"
-      - ./packer build amazon-linux_packer-template.json
+      - echo "Building HashiCorp Packer template, vault-consul.json"
+      - ./packer build vault-consul.json
   post_build:
     commands:
       - echo "HashiCorp Packer build completed on `date`"
