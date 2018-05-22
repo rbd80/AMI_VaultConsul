@@ -2,13 +2,13 @@
   "min_packer_version": "0.12.0",
   "variables": {
     "aws_region": "us-east-1",
-    "vault_version": "0.9.3",
+    "vault_version": "0.10.1",
     "consul_module_version": "v0.0.2",
     "consul_version": "1.0.6",
     "github_oauth_token": "{{env `GITHUB_OAUTH_TOKEN`}}",
-    "ca_public_key_path": "s3://castle-key/private_CA/ca.crt.pem",
-    "tls_public_key_path": "s3://castle-key/private_CA/vault.crt.pem",
-    "tls_private_key_path": "s3://castle-key/private_CA/vault.key.pem"
+    "ca_public_key_path": null,
+    "tls_public_key_path": null,
+    "tls_private_key_path": null
   },
   "builders": [{
     "ami_name": "vault-consul-ubuntu-{{isotime | clean_ami_name}}",
@@ -50,20 +50,34 @@
     "ssh_username": "ec2-user"
   }],
   "provisioners": [{
-    "type": "file",
-    "source": "{{template_dir}}",
-    "destination": "/tmp",
+    "type": "shell",
+    "inline": [
+      "git clone --branch v0.7.1 https://github.com/hashicorp/terraform-aws-vault.git /tmp/terraform-aws-vault",
+      "/tmp/terraform-aws-vault/modules/install-vault/install-vault --version {{user `vault_version`}}"
+    ],
     "pause_before": "30s"
+  },{
+    "type": "file",
+    "source": "{{user `ca_public_key_path`}}",
+    "destination": "/tmp/ca.crt.pem"
+  },{
+    "type": "file",
+    "source": "{{user `tls_public_key_path`}}",
+    "destination": "/tmp/vault.crt.pem"
+  },{
+    "type": "file",
+    "source": "{{user `tls_private_key_path`}}",
+    "destination": "/tmp/vault.key.pem"
   },{
     "type": "shell",
     "inline": [
-      "aws s3 cp {{user `ca_public_key_path`}} /opt/vault/tls/",
-      "aws s3 cp {{user `tls_public_key_path`}} /opt/vault/tls/",
-      "aws s3 cp {{user `tls_private_key_path`}} /opt/vault/tls/",
+      "sudo mv /tmp/ca.crt.pem /opt/vault/tls/",
+      "sudo mv /tmp/vault.crt.pem /opt/vault/tls/",
+      "sudo mv /tmp/vault.key.pem /opt/vault/tls/",
       "sudo chown -R vault:vault /opt/vault/tls/",
       "sudo chmod -R 600 /opt/vault/tls",
       "sudo chmod 700 /opt/vault/tls",
-      "sudo /tmp/modules/update-certificate-store/update-certificate-store --cert-file-path /opt/vault/tls/ca.crt.pem"
+      "sudo /tmp/terraform-aws-vault/modules/update-certificate-store/update-certificate-store --cert-file-path /opt/vault/tls/ca.crt.pem"
     ]
   },{
     "type": "shell",
@@ -81,8 +95,8 @@
     "type": "shell",
     "inline": [
       "git clone --branch {{user `consul_module_version`}} https://{{user `github_oauth_token`}}@github.com/hashicorp/terraform-aws-consul.git /tmp/terraform-aws-consul",
-      "/tmp/modules/install-consul/install-consul --version {{user `consul_version`}}",
-      "/tmp/modules/install-dnsmasq/install-dnsmasq"
+      "/tmp/terraform-aws-consul/modules/install-consul/install-consul --version {{user `consul_version`}}",
+      "/tmp/terraform-aws-consul/modules/install-dnsmasq/install-dnsmasq"
     ]
   }]
 }
