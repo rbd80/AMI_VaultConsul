@@ -6,9 +6,9 @@
     "consul_module_version": "v0.0.2",
     "consul_version": "1.0.6",
     "github_oauth_token": "{{env `GITHUB_OAUTH_TOKEN`}}",
-    "ca_public_key_path": "https://s3-us-east-1.amazonaws.com/castle-key/ca.crt.pem",
-    "tls_public_key_path": "https://s3-us-east-1.amazonaws.com/castle-key/vault.crt.pem",
-    "tls_private_key_path": "https://s3-us-east-1.amazonaws.com/castle-key/vault.key.pem"
+    "ca_public_key_path": "https://s3.amazonaws.com/castle-key/ca.crt.pem",
+    "tls_public_key_path": "https://s3.amazonaws.com/castle-key/vault.crt.pem",
+    "tls_private_key_path": "https://s3.amazonaws.com/castle-key/vault.key.pem"
   },
   "builders": [{
     "ami_name": "vault-consul-ubuntu-{{isotime | clean_ami_name}}",
